@@ -1,15 +1,15 @@
 {
-  "client_version": "0.2.0-rc2",
+  "client_version": "0.2.0-rc3",
   "skill_path": "skills/xqg-business-coach",
   "private_knowledge_included": false,
   "sha256": {
     ".gitignore": "1fcb94269b155e1106a3be4832526b44bb5399e4609808909deed091140adad4",
     "LICENSE": "e9bdafc87e889f75622aade8b0210f48e24fef9fcaeaf78c89f2128d24e6d8de",
-    "README.md": "370e0b1a2d01f726ef0c3a3b8152c86dc406ff35f35ea74740b70f7d2044b87d",
-    "skills/xqg-business-coach/SKILL.md": "a36077b50bad3aca5185df5fb7a55411f85d2fb49923ebaa58763312d855a225",
+    "README.md": "6899815d8af3eea84b118cf4256126df8a00484780f6d4b6dda5a399cf25b57f",
+    "skills/xqg-business-coach/SKILL.md": "d9b9ec4ac508af67805e6ab96f00cc4c2e51a74ff1c2bc7b860f3a14de80ff30",
     "skills/xqg-business-coach/agents/openai.yaml": "9daf1ee6e4fd89804fe3ae961ad6dbeb661a03309a5076bbe943c0c88f043905",
-    "skills/xqg-business-coach/references/query.md": "7fb0c9e61c641925b0d10f5f4f8ddfc5d19aaa22f4f903b96dcc6852e64432ae",
-    "skills/xqg-business-coach/references/updates.md": "443fa11e0144d26f0a6fb30439dfe26556d0449948a9aa72e6d9c5332e128b99",
-    "skills/xqg-business-coach/scripts/coach_client.py": "54f9895a3746592d89fe9c5970f1095722d288dfcf57758b12842a5c548d540a"
+    "skills/xqg-business-coach/references/query.md": "55030588f12379155a87bb8f4c0a4019578928d8d30ead56b5bab96a88e33947",
+    "skills/xqg-business-coach/references/updates.md": "4d5261e1bf7abe28c09e3251f1cf089315c2039fad2dc78c51a4312c9474c400",
+    "skills/xqg-business-coach/scripts/coach_client.py": "30d529b285b19436b171e6b1589c89e899bc8829761cc4bed2e36264b78c7c95"
   }
 }

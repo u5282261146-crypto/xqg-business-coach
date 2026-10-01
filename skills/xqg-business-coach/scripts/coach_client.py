@@ -11,7 +11,35 @@ from urllib.request import Request, HTTPRedirectHandler, build_opener
 from urllib.error import HTTPError, URLError
 
 BASE_URL='https://api.xqgnetwork.com/coach/v1'
-CLIENT_VERSION='0.2.0-rc2'
+CLIENT_VERSION='0.2.0-rc3'
+CLIENT_PROTOCOL=1
+
+
+def version_tuple(value):
+    if not isinstance(value,str):return None
+    match=re.fullmatch(r'(\d+)\.(\d+)\.(\d+)(?:-rc(\d+))?',value)
+    if not match:return None
+    major,minor,patch,rc=match.groups()
+    return (int(major),int(minor),int(patch),rc is None,int(rc or 0))
+
+
+def update_metadata(data):
+    latest=data.get('client_latest')
+    newer=version_tuple(latest) is not None and version_tuple(latest)>version_tuple(CLIENT_VERSION)
+    minimum=data.get('minimum_protocol')
+    required=type(minimum) is int and minimum>CLIENT_PROTOCOL
+    return dict(client_version=CLIENT_VERSION,update_available=newer,update_required=required)
+
+
+def http_failure(error):
+    statuses={401:'connection_denied',403:'connection_denied',422:'question_scope_required',429:'query_limit_reached',426:'client_update_required'}
+    status=statuses.get(error.code,'service_unavailable')
+    try:
+        data=json.loads(error.read(4097))
+        if error.code==429 and isinstance(data,dict) and data.get('status')=='knowledge_access_limit':status='knowledge_access_limit'
+    except (OSError,ValueError,TypeError):pass
+    finally:error.close()
+    return {'status':status,'http_status':error.code}
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -56,6 +84,11 @@ def main():
         data=json.loads(raw)
         if not isinstance(data,dict) or data.get('status')!='ok':raise ValueError('unexpected response')
         out={k:data[k] for k in ['status','product','api_version','knowledge_version','retrieval_mode','query_available','conversation_storage','client_latest','minimum_protocol','scope'] if k in data}
+        if endpoint=='capabilities':
+            out.update(update_metadata(data))
+            if out['update_required']:
+                out['status']='client_update_required'
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         if endpoint=='query':
             out['methods']=[]
             for item in data.get('methods',[])[:3]:
@@ -67,8 +100,7 @@ def main():
                 out['methods'].append({'title':str(item.get('title',''))[:300],'method':str(item.get('method',''))[:1500],'sources':sources})
         print(json.dumps(out,ensure_ascii=False,indent=2));return 0
     except HTTPError as error:
-        statuses={401:'connection_denied',403:'connection_denied',422:'question_scope_required',429:'query_limit_reached',426:'client_update_required'}
-        print(json.dumps({'status':statuses.get(error.code,'service_unavailable'),'http_status':error.code},ensure_ascii=False));return 1
+        print(json.dumps(http_failure(error),ensure_ascii=False));return 1
     except (OSError,ValueError,TypeError,URLError,TimeoutError) as error:
         print(json.dumps({'status':'service_unavailable','reason':type(error).__name__},ensure_ascii=False));return 1
 

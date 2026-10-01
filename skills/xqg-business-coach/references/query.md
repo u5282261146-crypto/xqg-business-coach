@@ -15,7 +15,9 @@ python3 scripts/coach_client.py query --question "用户正在经营付费创业
 
 `hybrid_semantic` 表示本次结合语义与关键词召回，再由当前 AI 在对话中应用方法；`keyword_fallback` 只表示模型暂时不可用时的降级查询，不能称为语义检索。方法是否适用还需结合用户事实判断，排序不证明结论正确。空结果不等于用户问题没有解法。
 
-`query_limit_reached` 时不要轮换标识或自动重试；`question_scope_required` 表示请求超出具体问题范围；`service_unavailable` 或 `connection_denied` 只说明本次没有取得知识，不能凭一次失败断言服务器宕机。无 Python 或无网络时可提供一般帮助，清楚区分来源。
+`query_limit_reached` 表示查询次数限额；`knowledge_access_limit` 表示知识片段访问额度，两者都不轮换标识或自动重试，不承诺隔天一定恢复。`question_scope_required` 表示请求超出具体问题范围；`service_unavailable` 或 `connection_denied` 只说明本次没有取得知识，不能凭一次失败断言服务器宕机。无 Python 或无网络时可提供一般帮助，清楚区分来源。
+
+`status` 还返回本地版本、是否有新版和协议是否需要更新；只在本次实际使用开始时检查一次，不在每轮查询前重复。普通新版可继续使用；协议明确不兼容时按更新说明处理。状态查询没有进行语义检索，不能用它判断当次问题是否已查到知识。
 
 ## 数据范围
 
