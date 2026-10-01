@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.sqlite3*
+*.key
+*.token
+.env*
+knowledge-source/
+data/
+logs/
+run/
