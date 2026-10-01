@@ -11,7 +11,7 @@ from urllib.request import Request, HTTPRedirectHandler, build_opener
 from urllib.error import HTTPError, URLError
 
 BASE_URL='https://api.xqgnetwork.com/coach/v1'
-CLIENT_VERSION='0.2.0-rc3'
+CLIENT_VERSION='0.2.0-rc4'
 CLIENT_PROTOCOL=1
 
 
@@ -70,6 +70,7 @@ def main():
     sub=parser.add_subparsers(dest='command',required=True)
     sub.add_parser('status')
     query=sub.add_parser('query');query.add_argument('--question',required=True)
+    query.add_argument('--decision',help='当前要做的决定，4至200字；背景限制仍保留在question中')
     args=parser.parse_args()
     try:
         payload={}
@@ -77,6 +78,10 @@ def main():
             question=args.question.strip()
             if not 8<=len(question)<=800:raise ValueError('question must contain 8 to 800 characters')
             payload={'question':question}
+            if args.decision is not None:
+                decision=args.decision.strip()
+                if not 4<=len(decision)<=200:raise ValueError('decision must contain 4 to 200 characters')
+                payload['decision']=decision
         endpoint='capabilities' if args.command=='status' else 'query'
         req=Request(BASE_URL+'/'+endpoint,data=json.dumps(payload,ensure_ascii=False).encode(),headers={'Content-Type':'application/json','Accept':'application/json','User-Agent':'XQG-Business-Coach/'+CLIENT_VERSION,'Authorization':'Bearer '+installation_token()},method='POST')
         with build_opener(NoRedirect).open(req,timeout=15) as response:raw=response.read(65537)
@@ -97,7 +102,9 @@ def main():
                 for link in item.get('sources',[])[:4]:
                     if isinstance(link,dict) and str(link.get('url','')).startswith('https://'):
                         sources.append({'title':str(link.get('title',''))[:200],'url':str(link['url'])[:1000]})
-                out['methods'].append({'title':str(item.get('title',''))[:300],'method':str(item.get('method',''))[:1500],'sources':sources})
+                method={'title':str(item.get('title',''))[:300],'method':str(item.get('method',''))[:1500],'sources':sources}
+                if item.get('basis') in ('method','source_summary'):method['basis']=item['basis']
+                out['methods'].append(method)
         print(json.dumps(out,ensure_ascii=False,indent=2));return 0
     except HTTPError as error:
         print(json.dumps(http_failure(error),ensure_ascii=False));return 1
